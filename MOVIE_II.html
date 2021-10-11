@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        img{
+            width: 50%;
+            border-radius: 20px;
+        }
+        #data{
+            text-align: center;
+            margin: auto;
+            width: 40%;
+            background-color: rgb(240, 240, 240);
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="movie">
+    <button onclick="searchMovie()">Search</button>
+    <div id="data"></div>
+</body>
+<script>
+    function searchMovie(){
+        let movie=document.getElementById("movie").value;
+        fetch(`http://www.omdbapi.com/?apikey=a1952697&t=${movie}&i`)
+        .then(function (res){
+           return res.json()
+        })
+        .then(function(data){
+            show(data)
+        })
+        .catch(function(){
+        let img=document.createElement("img");
+        img.src="https://i.makeagif.com/media/11-04-2015/mfnzwt.gif";
+        let par=document.getElementById("data");
+            par.append(img);
+            img.style.width="100%";
+            par.style.padding="0";
+            par.style.backgroundColor="white";
+        })
+     
+    }
+    function show(item){
+
+        let par=document.getElementById("data");
+        par.style.padding="20px"
+        par.innerHTML=null;
+
+        let div=document.createElement("div");
+        let img=document.createElement("img");
+        img.src=item.Poster;
+        let name=document.createElement("h3");
+        name.textContent=`Title: ${item.Title}`;
+        let rating=document.createElement("p");
+        rating.textContent=`Ratings: ${item.Ratings[0].Value}`;
+        let lang=document.createElement("p");
+        lang.textContent=`Language: ${item.Language}`;
+        let production=document.createElement("p");
+        production.textContent=`Production: ${item.Production}`;
+        let actors=document.createElement("p");
+        actors.textContent=`Actor: ${item.Actors}`;
+        let director=document.createElement("p");
+        director.textContent=`Director: ${item.Director}`;
+
+        div.append(name,img,actors,director,lang,rating,production);
+
+        data.append(div);
+    }
+</script>
+</html>
