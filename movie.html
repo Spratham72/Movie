@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+       #product{
+    
+    display: grid;
+    justify-content: space-evenly;
+    grid-template-columns: 20% 20% 20% 20%;
+    gap: 20px;
+    
+    font-size: 15px;
+   
+}
+#desc{
+    margin-left: 40px;
+    width:80%;
+    height: 20px;
+ 
+}
+#product>div>figure>img{
+    width: auto;
+    height: 100%;
+}
+#product>div>figure{
+    height:150px;
+    width: 100%;
+    text-align: center;
+}
+#product>*{
+    background-color: white;
+    cursor: pointer;
+    border-radius: 20px;
+}
+h2{
+    text-align: center;
+}
+    </style>
+</head>
+<body>
+    <h2>TOP TRENDING MOVIES/SERIES</h2>
+    <div id="product"></div>
+</body>
+<script>
+    var main=document.getElementById("main"); var time;
+async function get (){
+    try{
+        let res=await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=227e29f7b216501d016d7143de2f8f6e`)
+        let data = await res.json();
+       console.log(data)
+       show(data.results)
+
+    }
+    catch(e){
+        console.log(`Error:${e}`)
+    }
+}
+get()
+var proDiv=document.getElementById("product")
+function show(movie){
+        movie.forEach(function(item){
+
+        var div=document.createElement("div");
+        var figure=document.createElement("figure");
+        
+        var img=document.createElement("img");
+        figure.append(img);
+        img.src=`https://image.tmdb.org/t/p/w500/${item.backdrop_path}`;
+        // var price=document.createElement("p");
+        // price.textContent=item.price;
+        var prod_name=document.createElement('p')
+        prod_name.id="desc";
+        prod_name.textContent=`Name: ${item.title}`;
+
+        div.append(figure, prod_name);
+       
+        proDiv.append(div)
+       
+        })
+    }
+
+</script>
+
+</html>
