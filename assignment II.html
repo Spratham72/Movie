@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #main{
+            
+            display:none;
+            height: 200px;
+            overflow: scroll;
+            width:250px;
+            background-color: azure;
+            margin: auto;
+        }
+        #suggestion{
+            display:flex;
+            flex-direction: row;
+            cursor: pointer;
+        }
+        #suggestion>*{
+            margin: 2px;
+        }
+        #movie{
+            width:250px;
+        }
+        body{
+            text-align: center;
+        }
+        #show{
+            
+            text-align: center;
+            width:40%;
+            margin-left: 350px;
+            margin-top: 50px;
+            background-color: rgb(248, 248, 248);
+            padding: 30px;
+            display: none;
+            border:0.5px solid rgb(190, 185, 185);
+            border-radius: 10px;
+        }
+        #detail>img{
+            width:40%;
+        }
+        
+    </style>
+</head>
+<body>
+    <input oninput="debounce(get,1000)" type="text" id="movie" placeholder="Movie Name">
+    
+    <button onclick="get()">Search</button>
+    <div id="main"></div>
+    <div id="show"></div>
+</body>
+<script>
+    var main1=document.getElementById("show");
+    var main=document.getElementById("main"); var time;
+async function get (){
+    let movie_name=document.getElementById("movie").value;
+    try{
+        let res=await fetch(`http://www.omdbapi.com/?apikey=a1952697&s=${movie_name}`)
+        let data = await res.json();
+        display(data.Search);
+
+    }
+    catch(e){
+        console.log(`Error:${e}`)
+    }
+}
+ function display(data){
+     console.log(data)
+if(data.length>3){
+main.innerHTML=null;
+main.style.display="block";
+data.forEach(function (item){
+let div=document.createElement("div");
+div.id="suggestion";
+div.onclick=function (){
+    detail(item)
+}
+let img=document.createElement("img");
+img.src=item.Poster;
+img.style.width="20px";
+let name=document.createElement("p");
+name.textContent=item.Title;
+div.append(img,name);
+main.append(div);
+});
+    }
+}
+
+function debounce(func,delay){
+
+if(time){
+    clearTimeout(time);
+}
+time= setTimeout(function(){
+     func();
+ },delay)
+}
+
+async function detail (detail){
+    //console.log(detail);
+    let movie_name=detail.Title;
+    try{
+        let res=await fetch(`http://www.omdbapi.com/?apikey=a1952697&t=${movie_name}`)
+        let data = await res.json();
+       show(data);
+
+    }
+    catch(e){
+        console.log(`Error:${e}`)
+    }
+}
+
+
+function show(detail){
+    main1.style.display="block";
+    main1.innerHTML=null;
+main.style.display="none";
+console.log(detail)
+let div=document.createElement("div");
+div.id="detail";
+let img=document.createElement("img");
+img.src=detail.Poster;
+let name=document.createElement("h3");
+name.textContent=detail.Title;
+let year=document.createElement("p");
+year.textContent=`Released: ${detail.Released}`;
+
+let rate=document.createElement("p");
+rate.textContent=`Ratings IMDb: ${detail.Ratings[0].Value}`;
+let actor=document.createElement("p");
+actor.textContent=`Actors: ${detail.Actors}`;
+let country=document.createElement("p");
+country.textContent=`Country: ${detail.Country}`;
+let genre=document.createElement("p");
+genre.textContent=`Genre: ${detail.Genre}`;
+let lang=document.createElement("p");
+lang.textContent=`Language: ${detail.Language}`;
+
+div.append(img,name,genre,year,actor,rate,country,lang);
+main1.append(div);
+}
+</script>
+
+</html>
