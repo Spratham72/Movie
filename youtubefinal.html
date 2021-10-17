@@ -113,6 +113,30 @@
             grid-template-columns:repeat(4,25%);
             gap:05px;
         }
+        #drop{
+            visibility: hidden ;
+        }
+        #signup>*{
+            margin-top: 5px;
+        }
+        #signup{
+            display: none;
+            background-color: antiquewhite;
+            width: 200px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #login>*{
+            margin-top: 5px;
+        }
+        #login{
+            display: none;
+            background-color: antiquewhite;
+            width: 200px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -141,13 +165,39 @@
             <div></div>
         </div>
         <button id="notification"></button>
-        <button id="account"></button>
+        <p id="name"></p>
+       
+        <button id="account" onclick="account()">
+        </button>
+        <div id="drop">
+        <div onclick="signup()">Signin</div>
+        <div  onclick="login()">Login</div>  
+        </div>
     </div>
     <div id="videos"></div>
+    <form id="signup" onsubmit="getData(event)">
+        Name: <input type="text" id="name"> <br>
+        Email: <input type="email" id="email"><br>
+        Password: <input type="password" id="password"><br>
+        Username: <input type="text" id="user"><br>
+        Mobile: <input type="text" id="mobile"><br>
+        Description: <input type="text" id="description"><br>
+        <p id="message"></p>
+        <input type="submit">
+    </form>
+
+    <form id="login" onsubmit="check(event)">
+        Username: <input type="text" id="user"><br>
+        Password: <input type="password" id="password"><br>
+        
+      
+        <p id="message"></p>
+        <input type="submit">
+    </form>
 </body>
 <script>
 
-var videos=document.getElementById("videos");
+ var videos=document.getElementById("videos");
 async function home(){
 var search=document.getElementById("search").value;
  let res= await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=In&maxResults=25&key=AIzaSyAE-XpMbKKFXWKDlTNzjVabJx7l1C6bmO8`);
@@ -183,5 +233,103 @@ function appendVideos1(vide_data){
     });
 }
 
+
+function account(){
+  let drop=document.getElementById("drop");
+    drop.style.visibility="visible";
+    videos.innerHTML=null;
+
+}
+function signup(){
+    let sign=document.getElementById("signup");
+    sign.style.display="block";
+}
+function login(){
+    let sign=document.getElementById("signup");
+    sign.style.display="none";
+    let login=document.getElementById("login");
+    login.style.display="block";
+}
+function check(e){
+            let form=document.getElementById("login");
+            e.preventDefault();
+            data={
+            
+            username:form.user.value,
+            password:form.password.value,
+            };
+            console.log(data)
+            dataSend=JSON.stringify(data);
+            console.log(data)
+
+            fetch("https://masai-api-mocker.herokuapp.com/auth/login",{
+                method:'POST',
+                body:dataSend,
+                headers:{
+                        'Content-Type':"application/json",
+                    },
+            })
+            .then ((res)=>{
+                return res.json();
+            })
+            .then((res)=>{
+                console.log(res)
+                console.log(data.username,res.token)
+                fetchmyData(data.username,res.token);
+            }) 
+        }
+        function fetchmyData(username, token){
+
+        fetch(`https://masai-api-mocker.herokuapp.com/user/${username}`,{
+        headers:{
+                'Content-Type':"application/json",
+                Authorization:`Bearer ${token}`,
+            },
+        })
+        .then ((res)=>{
+            return res.json();
+        })
+        .then((res)=>{
+            
+            document.getElementById("name").textContent=res.name;
+            document.getElementById("drop").innerHTML=null;
+            document.innerHTML=null;
+
+            home();
+            console.log(res)
+        })
+        }
+function getData(e){
+    e.preventDefault();
+    let form=document.getElementById("signup");
+        let userData={
+            name:form.name.value,
+            email:form.email.value,
+            password:form.password.value,
+            username:form.user.value,
+            mobile:form.mobile.value,
+            description:form.description.value
+        }
+        userData=JSON.stringify(userData);
+        console.log(userData)
+        fetch("https://masai-api-mocker.herokuapp.com/auth/register",{
+        method:'POST',
+        body:userData,
+        headers:{
+            'Content-Type':"application/json",
+        },
+        })
+        .then ((res)=>{
+            return res.json();
+        })
+        .then((res)=>{
+            let message=document.getElementById("message");
+            message.textContent=res.message
+            console.log(res)
+        })
+        .catch((er)=>{
+            console.log(er)
+        })
+}
 </script>
 </html>
