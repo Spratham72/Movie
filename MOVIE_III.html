@@ -16,14 +16,165 @@
             width: 40%;
             background-color: rgb(240, 240, 240);
         }
+        #signup>*{
+            margin-top: 5px;
+        }
+        #signup{
+            display: none;
+            background-color: antiquewhite;
+            width: 200px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #login>*{
+            margin-top: 5px;
+        }
+        #login{
+            display: none;
+            background-color: antiquewhite;
+            width: 200px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #message{
+            color:red;
+        }
+        #align{
+            text-align: right;
+        }
     </style>
 </head>
 <body>
+    <div id="align"><div id="name"></div></div>
+    
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
     <input type="text" id="movie">
     <button onclick="searchMovie()">Search</button>
-    <div id="data"></div>
+    <div id="data">
+       
+    </div>
+    <form id="signup" onsubmit="getData(event)">
+        Name: <input type="text" id="name"> <br>
+        Email: <input type="email" id="email"><br>
+        Password: <input type="password" id="password"><br>
+        Username: <input type="text" id="user"><br>
+        Mobile: <input type="text" id="mobile"><br>
+        Description: <input type="text" id="description"><br>
+        <p id="message"></p>
+        <input type="submit">
+    </form>
+
+    <form id="login" onsubmit="check(event)">
+        Username: <input type="text" id="user"><br>
+        Password: <input type="password" id="password"><br>
+        
+      
+        <p id="message"></p>
+        <input type="submit">
+    </form>
+    
+
 </body>
 <script>
+     function login(){
+        let main =document.getElementById("data");
+        main.innerHTML=null;
+        let sign =document.getElementById("signup");
+        sign.innerHTML=null;
+        main.style.backgroundColor="white";
+        let form=document.getElementById("login");
+        form.style.display="block";
+        }
+
+        function check(e){
+            let form=document.getElementById("login");
+            e.preventDefault();
+            data={
+            
+            username:form.user.value,
+            password:form.password.value,
+            };
+            console.log(data)
+            dataSend=JSON.stringify(data);
+            console.log(data)
+
+            fetch("https://masai-api-mocker.herokuapp.com/auth/login",{
+                method:'POST',
+                body:dataSend,
+                headers:{
+                        'Content-Type':"application/json",
+                    },
+            })
+            .then ((res)=>{
+                return res.json();
+            })
+            .then((res)=>{
+                console.log(res)
+                console.log(data.username,res.token)
+                fetchmyData(data.username,res.token);
+            }) 
+        }
+        function fetchmyData(username, token){
+
+        fetch(`https://masai-api-mocker.herokuapp.com/user/${username}`,{
+        headers:{
+                'Content-Type':"application/json",
+                Authorization:`Bearer ${token}`,
+            },
+        })
+        .then ((res)=>{
+            return res.json();
+        })
+        .then((res)=>{
+            document.getElementById("name").textContent=res.name;
+            console.log(res)
+        })
+        }
+    function signup(){
+        let sign =document.getElementById("login");
+        sign.innerHTML=null;
+        let main =document.getElementById("data");
+        main.innerHTML=null;
+        main.style.backgroundColor="white";
+        let form=document.getElementById("signup");
+        form.style.display="block";
+        
+    }
+    function getData(e){
+        e.preventDefault();
+        let form=document.getElementById("signup");
+        let userData={
+            name:form.name.value,
+            email:form.email.value,
+            password:form.password.value,
+            username:form.user.value,
+            mobile:form.mobile.value,
+            description:form.description.value
+        }
+        userData=JSON.stringify(userData);
+        console.log(userData)
+        fetch("https://masai-api-mocker.herokuapp.com/auth/register",{
+        method:'POST',
+        body:userData,
+        headers:{
+            'Content-Type':"application/json",
+        },
+        })
+        .then ((res)=>{
+            return res.json();
+        })
+        .then((res)=>{
+            let message=document.getElementById("message");
+            message.textContent=res.message
+            console.log(res)
+        })
+        .catch((er)=>{
+            console.log(er)
+        })
+    }
+    
+
     function searchMovie(){
         let movie=document.getElementById("movie").value;
         fetch(`http://www.omdbapi.com/?apikey=a1952697&t=${movie}&i`)
@@ -57,7 +208,7 @@
         name.textContent=`Title: ${item.Title}`;
         let rating=document.createElement("p");
         rating.textContent=`Ratings: ${item.Ratings[0].Value}`;
-        if(Number(item.Ratings[0].Value[0])>8){
+        if(Number(item.Ratings[0].Value[0])>=8){
             var com=document.createElement("div");
             com.textContent="RECOMMENDED";
             com.style.backgroundColor='red';
